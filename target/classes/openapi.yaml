@@ -1,0 +1,115 @@
+openapi: 3.0.0
+info:
+  title: API de Votação
+  version: 1.0.0
+  description: API para gerenciar votações de pautas.
+
+paths:
+  /api/cpf/{cpf}:
+    get:
+      summary: Validar CPF
+      description: Verifica se o CPF é válido e seu status de votação.
+      parameters:
+        - name: cpf
+          in: path
+          required: true
+          description: Número do CPF a ser validado
+          schema:
+            type: string
+      responses:
+        '200':
+          description: CPF válido e status retornado.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ABLE_TO_VOTE, UNABLE_TO_VOTE]
+        '404':
+          description: CPF inválido ou incapaz de votar.
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /api/pautas:
+    post:
+      summary: Criar Pauta
+      description: Cria uma nova pauta.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Pauta'
+      responses:
+        '200':
+          description: Pauta criada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pauta'
+
+    get:
+      summary: Listar Pautas
+      description: Retorna a lista de pautas.
+      responses:
+        '200':
+          description: Lista de pautas retornada com sucesso.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pauta'
+
+  /pautas/{pautaId}/votos:
+    post:
+      summary: Votar
+      description: Registra um voto em uma pauta específica.
+      parameters:
+        - name: pautaId
+          in: path
+          required: true
+          description: ID da pauta na qual o voto será registrado
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Voto'
+      responses:
+        '200':
+          description: Voto registrado com sucesso.
+          content:
+            application/json:
+              schema:
+                type: string
+
+components:
+  schemas:
+    Pauta:
+      type: object
+      properties:
+        id:
+          type: integer
+        titulo:
+          type: string
+        descricao:
+          type: string
+        status:
+          type: string
+          enum: [ABERTA, FECHADA]
+
+    Voto:
+      type: object
+      properties:
+        usuarioId:
+          type: integer
+        escolha:
+          type: string
+          enum: [SIM, NAO]
